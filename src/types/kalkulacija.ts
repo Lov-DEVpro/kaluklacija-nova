@@ -11,6 +11,11 @@ export interface Kalkulacija {
   tlocrt_objekta_m2: number;
   ponuda: string;
   
+  // Status i zaključavanje
+  status: string;
+  zakljucano: boolean;
+  datum_zakljucanja: string | null;
+  
   // Rad u proizvodnji
   rad_proiz_armiraci_km_kg: number;
   rad_proiz_kalupari_km_m3: number;
@@ -131,7 +136,7 @@ export interface ElementKalkulacije {
 export interface TransportKalkulacije {
   id: string;
   kalkulacija_id: string;
-  tip_ture: string;
+  tip_ture: 'G' | 'VG';
   udaljenost_km: number;
   cijena_po_m3: number;
   broj_tura: number;
@@ -157,3 +162,44 @@ export interface Materijal {
   cijena_km: number;
   created_at: string;
 }
+
+export interface ParametarElementa {
+  id: string;
+  tip_elementa_id: string | null;
+  marka_betona: string;
+  beton_km_m3: number;
+  armatura_kg_m3: number;
+  armatura_koeficijent: number;
+  kablovi_kg_m3: number;
+  kablovi_km_kg: number;
+  ostalo_postotak: number;
+  created_at: string;
+}
+
+export interface CalculationSnapshot {
+  id: string;
+  kalkulacija_id: string;
+  snapshot_data: Record<string, unknown>;
+  created_at: string;
+  created_by: string;
+}
+
+// Kategorije elemenata prema Excel dokumentu
+export const ELEMENT_CATEGORIES = [
+  { value: 'temeljna_konstrukcija', label: 'Temeljna konstrukcija' },
+  { value: 'temeljne_stope', label: 'Temeljne stope' },
+  { value: 'temeljne_case', label: 'Temeljne čaše' },
+  { value: 'medutemelji', label: 'Međutemelji' },
+  { value: 'temeljne_vezne_grede', label: 'Temeljne vezne grede' },
+  { value: 'pretovarne_rampe', label: 'Pretovarne rampe' },
+  { value: 'stubovi', label: 'Stubovi' },
+  { value: 'spratne_grede', label: 'Spratne grede' },
+  { value: 'stropne_pi_ploce', label: 'Stropne PI ploče' },
+  { value: 'krovna_konstrukcija', label: 'Krovna konstrukcija' },
+  { value: 'suplje_ploce', label: 'Šuplje ploče' },
+  { value: 'fasade', label: 'Fasade' },
+  { value: 'roznjace', label: 'Rožnjače' },
+] as const;
+
+// Marke betona
+export const MARKE_BETONA = ['MB30', 'MB40', 'MB45', 'MB50'] as const;

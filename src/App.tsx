@@ -9,6 +9,8 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import KalkulacijaNova from "./pages/KalkulacijaNova";
 import KalkulacijaPregled from "./pages/KalkulacijaPregled";
+import KalkulacijaElementi from "./pages/KalkulacijaElementi";
+import KalkulacijaTransport from "./pages/KalkulacijaTransport";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,6 +29,8 @@ const App = () => (
             <Route path="/kalkulacija/nova" element={<ProtectedRoute><KalkulacijaNova /></ProtectedRoute>} />
             <Route path="/kalkulacija/:id" element={<ProtectedRoute><KalkulacijaPregled /></ProtectedRoute>} />
             <Route path="/kalkulacija/:id/edit" element={<ProtectedRoute><KalkulacijaNova /></ProtectedRoute>} />
+            <Route path="/kalkulacija/:id/elementi" element={<ProtectedRoute><KalkulacijaElementi /></ProtectedRoute>} />
+            <Route path="/kalkulacija/:id/transport" element={<ProtectedRoute><KalkulacijaTransport /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

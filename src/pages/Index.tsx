@@ -30,7 +30,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { useKalkulacije } from '@/hooks/useKalkulacije';
-import { Plus, Copy, Trash2, Edit, Eye, Search, FileText, Loader2 } from 'lucide-react';
+import { Plus, Copy, Trash2, Edit, Eye, Search, FileText, Loader2, Lock, Unlock } from 'lucide-react';
 import { format } from 'date-fns';
 import { bs } from 'date-fns/locale';
 

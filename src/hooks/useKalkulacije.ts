@@ -21,7 +21,7 @@ export function useKalkulacije() {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setKalkulacije(data || []);
+      setKalkulacije((data || []) as Kalkulacija[]);
     } catch (error) {
       console.error('Greška pri učitavanju kalkulacija:', error);
       toast.error('Greška pri učitavanju kalkulacija');
@@ -52,6 +52,8 @@ export function useKalkulacije() {
           user_id: user.id,
           ino_ukupno_km: ino_ukupno,
           bih_ukupno_km: bih_ukupno,
+          status: 'draft',
+          zakljucano: false,
         })
         .select()
         .single();
@@ -71,11 +73,17 @@ export function useKalkulacije() {
   const updateKalkulacija = async (id: string, formData: Partial<KalkulacijaFormData>) => {
     if (!user) return false;
 
+    // Provjeri da li je kalkulacija zaključana
+    const existing = kalkulacije.find(k => k.id === id);
+    if (existing?.zakljucano) {
+      toast.error('Ova kalkulacija je zaključana i ne može se uređivati');
+      return false;
+    }
+
     // Ako su prisutni podaci za inostranstvo/BiH, izračunaj ukupne troškove
     const updates: Record<string, unknown> = { ...formData };
     
     if ('ino_broj_radnika' in formData || 'ino_broj_dana' in formData) {
-      const existing = kalkulacije.find(k => k.id === id);
       if (existing) {
         const ino_radnika = formData.ino_broj_radnika ?? existing.ino_broj_radnika;
         const ino_dana = formData.ino_broj_dana ?? existing.ino_broj_dana;
@@ -88,7 +96,6 @@ export function useKalkulacije() {
     }
 
     if ('bih_broj_radnika' in formData || 'bih_broj_dana' in formData) {
-      const existing = kalkulacije.find(k => k.id === id);
       if (existing) {
         const bih_radnika = formData.bih_broj_radnika ?? existing.bih_broj_radnika;
         const bih_dana = formData.bih_broj_dana ?? existing.bih_broj_dana;
@@ -121,6 +128,12 @@ export function useKalkulacije() {
 
   const deleteKalkulacija = async (id: string) => {
     if (!user) return false;
+
+    const existing = kalkulacije.find(k => k.id === id);
+    if (existing?.zakljucano) {
+      toast.error('Zaključana kalkulacija se ne može obrisati');
+      return false;
+    }
 
     try {
       const { error } = await supabase
@@ -156,7 +169,7 @@ export function useKalkulacije() {
     const maxVersion = Math.max(...versions, 0);
     const newVersion = `v${maxVersion + 1}`;
 
-    const { id: _, user_id: __, created_at: ___, updated_at: ____, ...rest } = original;
+    const { id: _, user_id: __, created_at: ___, updated_at: ____, zakljucano: _____, datum_zakljucanja: ______, status: _______, ...rest } = original;
 
     try {
       const { data, error } = await supabase
@@ -166,6 +179,8 @@ export function useKalkulacije() {
           user_id: user.id,
           verzija: newVersion,
           datum_kalkulacije: new Date().toISOString().split('T')[0],
+          status: 'draft',
+          zakljucano: false,
         })
         .select()
         .single();
@@ -182,6 +197,62 @@ export function useKalkulacije() {
     }
   };
 
+  const lockKalkulacija = async (id: string) => {
+    if (!user) return false;
+
+    const existing = kalkulacije.find(k => k.id === id);
+    if (!existing) return false;
+
+    try {
+      // Zaključaj kalkulaciju
+      const { error } = await supabase
+        .from('kalkulacije')
+        .update({
+          zakljucano: true,
+          status: 'locked',
+          datum_zakljucanja: new Date().toISOString(),
+        })
+        .eq('id', id)
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+      
+      await fetchKalkulacije();
+      toast.success('Kalkulacija uspješno zaključana');
+      return true;
+    } catch (error) {
+      console.error('Greška pri zaključavanju kalkulacije:', error);
+      toast.error('Greška pri zaključavanju kalkulacije');
+      return false;
+    }
+  };
+
+  const unlockKalkulacija = async (id: string) => {
+    if (!user) return false;
+
+    try {
+      const { error } = await supabase
+        .from('kalkulacije')
+        .update({
+          zakljucano: false,
+          status: 'active',
+          datum_zakljucanja: null,
+        })
+        .eq('id', id)
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+      
+      await fetchKalkulacije();
+      toast.success('Kalkulacija uspješno otključana');
+      return true;
+    } catch (error) {
+      console.error('Greška pri otključavanju kalkulacije:', error);
+      toast.error('Greška pri otključavanju kalkulacije');
+      return false;
+    }
+  };
+
   return {
     kalkulacije,
     loading,
@@ -190,5 +261,7 @@ export function useKalkulacije() {
     updateKalkulacija,
     deleteKalkulacija,
     duplicateKalkulacija,
+    lockKalkulacija,
+    unlockKalkulacija,
   };
 }
