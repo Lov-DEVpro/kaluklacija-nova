@@ -14,6 +14,38 @@ export type Database = {
   }
   public: {
     Tables: {
+      calculation_snapshots: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          kalkulacija_id: string
+          snapshot_data: Json
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          kalkulacija_id: string
+          snapshot_data: Json
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          kalkulacija_id?: string
+          snapshot_data?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calculation_snapshots_kalkulacija_id_fkey"
+            columns: ["kalkulacija_id"]
+            isOneToOne: false
+            referencedRelation: "kalkulacije"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       element_kalkulacije: {
         Row: {
           armatura_kg: number | null
@@ -91,6 +123,7 @@ export type Database = {
           cijena_po_m2: number | null
           created_at: string
           datum_kalkulacije: string
+          datum_zakljucanja: string | null
           drzava: string
           id: string
           ind_administracija: number | null
@@ -120,6 +153,7 @@ export type Database = {
           rad_static_km_m3: number | null
           rad_static_suplje_km_m2: number | null
           rad_transport_km_m3: number | null
+          status: string
           tlocrt_objekta_m2: number | null
           udaljenost_km: number | null
           ukupna_cijena: number | null
@@ -129,6 +163,7 @@ export type Database = {
           updated_at: string
           user_id: string
           verzija: string
+          zakljucano: boolean
         }
         Insert: {
           bih_broj_dana?: number | null
@@ -140,6 +175,7 @@ export type Database = {
           cijena_po_m2?: number | null
           created_at?: string
           datum_kalkulacije?: string
+          datum_zakljucanja?: string | null
           drzava?: string
           id?: string
           ind_administracija?: number | null
@@ -169,6 +205,7 @@ export type Database = {
           rad_static_km_m3?: number | null
           rad_static_suplje_km_m2?: number | null
           rad_transport_km_m3?: number | null
+          status?: string
           tlocrt_objekta_m2?: number | null
           udaljenost_km?: number | null
           ukupna_cijena?: number | null
@@ -178,6 +215,7 @@ export type Database = {
           updated_at?: string
           user_id: string
           verzija?: string
+          zakljucano?: boolean
         }
         Update: {
           bih_broj_dana?: number | null
@@ -189,6 +227,7 @@ export type Database = {
           cijena_po_m2?: number | null
           created_at?: string
           datum_kalkulacije?: string
+          datum_zakljucanja?: string | null
           drzava?: string
           id?: string
           ind_administracija?: number | null
@@ -218,6 +257,7 @@ export type Database = {
           rad_static_km_m3?: number | null
           rad_static_suplje_km_m2?: number | null
           rad_transport_km_m3?: number | null
+          status?: string
           tlocrt_objekta_m2?: number | null
           udaljenost_km?: number | null
           ukupna_cijena?: number | null
@@ -227,6 +267,7 @@ export type Database = {
           updated_at?: string
           user_id?: string
           verzija?: string
+          zakljucano?: boolean
         }
         Relationships: []
       }
